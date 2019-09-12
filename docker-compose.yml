@@ -1,0 +1,51 @@
+version: "3" 
+services:
+  php:
+    container_name: php_semprequisumblog
+    build: ${PWD}/docker/php
+    volumes:
+      - ${PWD}/public:/var/www/api/public
+    ports:
+        - "9000:9001"
+    depends_on:
+        - database
+    networks:
+      - net_ecommerce
+
+  nginx:
+    container_name: nginx_semprequisumblog
+    build: ${PWD}/docker/nginx
+    volumes:
+      - ${PWD}/public:/var/www/api/public
+    depends_on:
+      - php
+    ports:
+      - 80:80
+    networks:
+      - net_ecommerce
+
+  database:
+    container_name: postgres_semprequisumblog
+    image: postgres:alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: semprequisumblog
+      POSTGRES_USER: semprequisumblog
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - net_ecommerce
+  
+networks:
+  net_ecommerce:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/docker/postgres/data
